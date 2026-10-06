@@ -1,20 +1,79 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import React from "react";
+
+import {
+  ActivityIndicator,
+  StyleSheet,
+  View,
+} from "react-native";
+
+import { useFonts } from "expo-font";
+
+import {
+  SafeAreaProvider,
+} from "react-native-safe-area-context";
+
+import {
+  QueryClient,
+  QueryClientProvider,
+} from "@tanstack/react-query";
+
+import HomeScreen from "./screens/HomeScreen";
+
+const queryClient =
+  new QueryClient({
+    defaultOptions: {
+      queries: {
+        retry: 2,
+      },
+    },
+  });
 
 export default function App() {
+  const [fontsLoaded] =
+    useFonts({
+      "Vazirmatn-Regular":
+        require("./assets/fonts/Vazirmatn-Regular.ttf"),
+
+      "Vazirmatn-Medium":
+        require("./assets/fonts/Vazirmatn-Medium.ttf"),
+
+      "Vazirmatn-Bold":
+        require("./assets/fonts/Vazirmatn-Bold.ttf"),
+    });
+
+  if (!fontsLoaded) {
+    return (
+      <View style={styles.loading}>
+        <ActivityIndicator
+          size="large"
+          color="#FFFFFF"
+        />
+      </View>
+    );
+  }
+
   return (
-    <View style={styles.container}>
-      <Text>Open up App.tsx to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
+    <SafeAreaProvider>
+      <QueryClientProvider
+        client={queryClient}
+      >
+        <HomeScreen />
+      </QueryClientProvider>
+    </SafeAreaProvider>
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
+const styles =
+  StyleSheet.create({
+    loading: {
+      flex: 1,
+
+      alignItems: "center",
+
+      justifyContent:
+        "center",
+
+      backgroundColor:
+        "#060d18",
+    },
+  });
