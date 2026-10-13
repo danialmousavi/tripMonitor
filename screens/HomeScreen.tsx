@@ -16,7 +16,7 @@ import MainBanner from "../components/banner/MainBanner";
 import CampaignSection from "../components/campaign/CampaignSection";
 import MarketTicker from "../components/news/MarketTicker";
 
-import { LayoutSection } from "../types/player";
+import { LayoutSection, MediaItem } from "../types/player";
 
 import { usePlayerLayout } from "../hooks/usePlayerLayout";
 
@@ -75,23 +75,75 @@ export default function HomeScreen() {
   const bottomRight = getSection("bottom-right");
 
   // =========================================
-  // MEDIA
+  // VIDEO
   // =========================================
 
   const videoMedia =
-    topLeft && !Array.isArray(topLeft.media) ? topLeft.media : null;
+    topLeft && !Array.isArray(topLeft.media) && topLeft.media.type === "VIDEO"
+      ? topLeft.media
+      : null;
 
-  const sliderMedia =
-    topRight && Array.isArray(topRight.media) ? topRight.media : [];
+  // =========================================
+  // TOP RIGHT MEDIA
+  // =========================================
+
+  const topRightMedia: MediaItem[] = topRight
+    ? Array.isArray(topRight.media)
+      ? topRight.media
+      : [topRight.media]
+    : [];
+
+  // =========================================
+  // BOTTOM RIGHT MEDIA
+  // =========================================
+
+  const bottomRightMedia: MediaItem[] = bottomRight
+    ? Array.isArray(bottomRight.media)
+      ? bottomRight.media
+      : [bottomRight.media]
+    : [];
+
+  // =========================================
+  // LEFT CAROUSEL
+  //
+  // فقط top-right
+  // =========================================
+
+  const leftSliderMedia = topRightMedia;
+
+  // =========================================
+  // RIGHT CAROUSEL
+  //
+  // top-right + bottom-right
+  // =========================================
+
+  const rightSliderMedia = [...bottomRightMedia];
+
+  // =========================================
+  // MAIN BANNER
+  // =========================================
 
   const mainBannerMedia =
     bottomLeft && !Array.isArray(bottomLeft.media) ? bottomLeft.media : null;
 
-  const campaignMedia =
-    bottomRight && !Array.isArray(bottomRight.media) ? bottomRight.media : null;
+  // =========================================
+  // DEBUG
+  // =========================================
+
+  console.log("HOME SECTIONS:", sections);
+
+  console.log("VIDEO:", videoMedia?.url);
+
+  console.log("LEFT SLIDER:", leftSliderMedia.length);
+
+  console.log("RIGHT SLIDER:", rightSliderMedia.length);
+
+  console.log("BOTTOM RIGHT:", bottomRightMedia.length);
+
+  console.log("BANNER:", mainBannerMedia?.url);
 
   // =========================================
-  // INITIAL LOADING
+  // LOADING
   // =========================================
 
   if (isLoading && !data) {
@@ -133,43 +185,82 @@ export default function HomeScreen() {
 
         <MarketTicker />
 
-        {/* background refresh indicator */}
+        {/* ================= FETCH INDICATOR ================= */}
 
         {isFetching && !isLoading && <View style={styles.refreshIndicator} />}
 
         <View style={styles.content}>
-          {/* ================= TOP ================= */}
+          {/* ================= TOP ROW ================= */}
 
           <View style={styles.topRow}>
-            {/* LEFT CAROUSEL */}
+            {/* ===================================
+                LEFT CAROUSEL
+                فقط top-right
+            =================================== */}
 
             <View style={styles.sideCarouselCard}>
-              <PromoCarousel items={sliderMedia} />
+              {leftSliderMedia.length > 0 ? (
+                <PromoCarousel items={leftSliderMedia} />
+              ) : (
+                <View style={styles.emptyCard}>
+                  <Text style={styles.emptyText}>بنری موجود نیست</Text>
+                </View>
+              )}
             </View>
 
-            {/* CENTER VIDEO */}
+            {/* ===================================
+                CENTER VIDEO
+            =================================== */}
 
             <View style={styles.videoFocusWrapper}>
               <View style={styles.videoGlow} />
 
               <View style={styles.tvCard}>
-                {videoMedia && <LiveTVCard media={videoMedia} />}
+                {videoMedia ? (
+                  <LiveTVCard media={videoMedia} />
+                ) : (
+                  <View style={styles.emptyCard}>
+                    <Text style={styles.emptyText}>ویدیو موجود نیست</Text>
+                  </View>
+                )}
               </View>
             </View>
 
-            {/* RIGHT CAROUSEL */}
+            {/* ===================================
+                RIGHT CAROUSEL
+
+                top-right
+                +
+                bottom-right
+            =================================== */}
 
             <View style={styles.sideCarouselCard}>
-              <PromoCarousel items={sliderMedia} />
+              {rightSliderMedia.length > 0 ? (
+                <PromoCarousel items={rightSliderMedia} />
+              ) : (
+                <View style={styles.emptyCard}>
+                  <Text style={styles.emptyText}>بنری موجود نیست</Text>
+                </View>
+              )}
             </View>
           </View>
 
-          {/* ================= BOTTOM ================= */}
+          {/* ================= BOTTOM ROW ================= */}
 
           <View style={styles.bottomRow}>
+            {/* MAIN BANNER */}
+
             <View style={styles.bannerCard}>
-              {mainBannerMedia && <MainBanner media={mainBannerMedia} />}
+              {mainBannerMedia ? (
+                <MainBanner media={mainBannerMedia} />
+              ) : (
+                <View style={styles.emptyCard}>
+                  <Text style={styles.emptyText}>بنر موجود نیست</Text>
+                </View>
+              )}
             </View>
+
+            {/* CAMPAIGN */}
 
             <View style={styles.campaignCard}>
               <CampaignSection />
@@ -270,9 +361,9 @@ const styles = StyleSheet.create({
     zIndex: 100,
   },
 
-  // ==============================
+  // ========================================
   // TOP
-  // ==============================
+  // ========================================
 
   topRow: {
     flex: 1.08,
@@ -299,8 +390,23 @@ const styles = StyleSheet.create({
 
     borderColor: "rgba(139,92,246,0.30)",
 
+    shadowColor: "#8B5CF6",
+
+    shadowOpacity: 0.22,
+
+    shadowRadius: 8,
+
+    shadowOffset: {
+      width: 0,
+      height: 0,
+    },
+
     elevation: 4,
   },
+
+  // ========================================
+  // VIDEO
+  // ========================================
 
   videoFocusWrapper: {
     flex: 1.8,
@@ -357,9 +463,9 @@ const styles = StyleSheet.create({
     borderColor: "rgba(0,210,255,0.65)",
   },
 
-  // ==============================
+  // ========================================
   // BOTTOM
-  // ==============================
+  // ========================================
 
   bottomRow: {
     flex: 0.78,
@@ -389,9 +495,31 @@ const styles = StyleSheet.create({
     backgroundColor: "#101827",
   },
 
-  // ==============================
+  // ========================================
+  // EMPTY
+  // ========================================
+
+  emptyCard: {
+    flex: 1,
+
+    alignItems: "center",
+
+    justifyContent: "center",
+
+    backgroundColor: "#0A1323",
+  },
+
+  emptyText: {
+    color: "#64748B",
+
+    fontSize: 9,
+
+    textAlign: "center",
+  },
+
+  // ========================================
   // QUICK ACTIONS
-  // ==============================
+  // ========================================
 
   quickActionsBar: {
     height: 86,
@@ -489,6 +617,10 @@ const styles = StyleSheet.create({
     fontSize: 25,
   },
 
+  // ========================================
+  // COLORS
+  // ========================================
+
   redGlow: {
     borderColor: "rgba(255,55,90,0.38)",
 
@@ -497,6 +629,11 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.38,
 
     shadowRadius: 10,
+
+    shadowOffset: {
+      width: 0,
+      height: 0,
+    },
   },
 
   redIcon: {
@@ -513,6 +650,11 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.4,
 
     shadowRadius: 10,
+
+    shadowOffset: {
+      width: 0,
+      height: 0,
+    },
   },
 
   blueIcon: {
@@ -529,6 +671,11 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.4,
 
     shadowRadius: 10,
+
+    shadowOffset: {
+      width: 0,
+      height: 0,
+    },
   },
 
   yellowIcon: {
@@ -545,6 +692,11 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.42,
 
     shadowRadius: 10,
+
+    shadowOffset: {
+      width: 0,
+      height: 0,
+    },
   },
 
   purpleIcon: {
@@ -552,6 +704,10 @@ const styles = StyleSheet.create({
 
     borderColor: "rgba(165,90,255,0.52)",
   },
+
+  // ========================================
+  // LOADING
+  // ========================================
 
   loadingContainer: {
     flex: 1,

@@ -1,8 +1,4 @@
-import React, {
-  useEffect,
-  useRef,
-  useState,
-} from "react";
+import React, { useEffect, useRef, useState } from "react";
 
 import {
   FlatList,
@@ -18,40 +14,27 @@ type Props = {
   items: MediaItem[];
 };
 
-export default function PromoCarousel({
-  items,
-}: Props) {
-  const listRef =
-    useRef<FlatList<MediaItem>>(null);
+export default function PromoCarousel({ items }: Props) {
+  const listRef = useRef<FlatList<MediaItem>>(null);
 
-  const [activeIndex, setActiveIndex] =
-    useState(0);
+  const [activeIndex, setActiveIndex] = useState(0);
 
-  const [containerWidth, setContainerWidth] =
-    useState(0);
+  const [containerWidth, setContainerWidth] = useState(0);
 
   useEffect(() => {
-    if (
-      !containerWidth ||
-      items.length <= 1
-    ) {
+    if (!containerWidth || items.length <= 1) {
       return;
     }
 
-    const current =
-      items[activeIndex];
+    const current = items[activeIndex];
 
-    const duration =
-      current?.duration_ms || 10000;
+    const duration = current?.duration_ms || 10000;
 
     const timer = setTimeout(() => {
-      const next =
-        (activeIndex + 1) %
-        items.length;
+      const next = (activeIndex + 1) % items.length;
 
       listRef.current?.scrollToOffset({
-        offset:
-          next * containerWidth,
+        offset: next * containerWidth,
 
         animated: true,
       });
@@ -59,27 +42,15 @@ export default function PromoCarousel({
       setActiveIndex(next);
     }, duration);
 
-    return () =>
-      clearTimeout(timer);
-  }, [
-    activeIndex,
-    containerWidth,
-    items,
-  ]);
+    return () => clearTimeout(timer);
+  }, [activeIndex, containerWidth, items]);
 
-  const handleLayout = (
-    event: LayoutChangeEvent
-  ) => {
-    setContainerWidth(
-      event.nativeEvent.layout.width
-    );
+  const handleLayout = (event: LayoutChangeEvent) => {
+    setContainerWidth(event.nativeEvent.layout.width);
   };
 
   return (
-    <View
-      style={styles.outer}
-      onLayout={handleLayout}
-    >
+    <View style={styles.outer} onLayout={handleLayout}>
       <View style={styles.container}>
         {containerWidth > 0 && (
           <FlatList
@@ -88,50 +59,30 @@ export default function PromoCarousel({
             horizontal
             pagingEnabled
             bounces={false}
-            showsHorizontalScrollIndicator={
-              false
-            }
-            keyExtractor={(item) =>
-              item.id
-            }
-            snapToInterval={
-              containerWidth
-            }
+            showsHorizontalScrollIndicator={false}
+            keyExtractor={(item) => item.id}
+            snapToInterval={containerWidth}
             snapToAlignment="start"
             decelerationRate="fast"
             disableIntervalMomentum
-            getItemLayout={(
-              _,
-              index
-            ) => ({
-              length:
-                containerWidth,
+            getItemLayout={(_, index) => ({
+              length: containerWidth,
 
-              offset:
-                containerWidth *
-                index,
+              offset: containerWidth * index,
 
               index,
             })}
-            onMomentumScrollEnd={(
-              event
-            ) => {
-              const index =
-                Math.round(
-                  event.nativeEvent
-                    .contentOffset.x /
-                    containerWidth
-                );
+            onMomentumScrollEnd={(event) => {
+              const index = Math.round(
+                event.nativeEvent.contentOffset.x / containerWidth,
+              );
 
               setActiveIndex(index);
             }}
-            renderItem={({
-              item,
-            }) => (
+            renderItem={({ item }) => (
               <View
                 style={{
-                  width:
-                    containerWidth,
+                  width: containerWidth,
 
                   height: "100%",
                 }}
@@ -149,20 +100,12 @@ export default function PromoCarousel({
         )}
 
         <View style={styles.dots}>
-          {items.map(
-            (item, index) => (
-              <View
-                key={item.id}
-                style={[
-                  styles.dot,
-
-                  activeIndex ===
-                    index &&
-                    styles.activeDot,
-                ]}
-              />
-            )
-          )}
+          {items.map((item, index) => (
+            <View
+              key={item.id}
+              style={[styles.dot, activeIndex === index && styles.activeDot]}
+            />
+          ))}
         </View>
       </View>
     </View>
@@ -200,8 +143,7 @@ const styles = StyleSheet.create({
 
     borderWidth: 1,
 
-    borderColor:
-      "rgba(139,92,246,0.62)",
+    borderColor: "rgba(139,92,246,0.62)",
   },
 
   image: {
@@ -224,8 +166,7 @@ const styles = StyleSheet.create({
 
     borderRadius: 12,
 
-    backgroundColor:
-      "rgba(5,10,25,0.55)",
+    backgroundColor: "rgba(5,10,25,0.55)",
   },
 
   dot: {
@@ -234,14 +175,12 @@ const styles = StyleSheet.create({
 
     borderRadius: 6,
 
-    backgroundColor:
-      "rgba(255,255,255,0.35)",
+    backgroundColor: "rgba(255,255,255,0.35)",
   },
 
   activeDot: {
     width: 24,
 
-    backgroundColor:
-      "#a78bfa",
+    backgroundColor: "#a78bfa",
   },
 });
