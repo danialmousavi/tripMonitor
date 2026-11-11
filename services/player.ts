@@ -5,8 +5,13 @@ import {
   Placement,
   PlayerLayoutResponse,
 } from "../types/player";
+import Constants from "expo-constants";
 
-const BASE_URL = (process.env.EXPO_PUBLIC_BACKEND_URL ?? "").replace(/\/+$/, "");
+const configuredBaseUrl = Constants.expoConfig?.extra?.backendUrl;
+const BASE_URL =
+  typeof configuredBaseUrl === "string"
+    ? configuredBaseUrl.replace(/\/+$/, "")
+    : "";
 
 const API_URL = `${BASE_URL}/api/v1/device/manifest`;
 

@@ -13,9 +13,9 @@ type Prize = {
   color: string;
 };
 
-const WHEEL_SIZE = 210;
+const WHEEL_SIZE = 240;
 const CENTER = WHEEL_SIZE / 2;
-const RADIUS = 100;
+const RADIUS = 115;
 
 const PRIZES: Prize[] = [
   {
@@ -231,7 +231,7 @@ export default function CampaignSection() {
               {PRIZES.map((prize, index) => {
                 const angle = index * sliceAngle + sliceAngle / 2;
 
-                const point = polarToCartesian(CENTER, CENTER, 69, angle);
+                const point = polarToCartesian(CENTER, CENTER, 79, angle);
 
                 return (
                   <View
@@ -241,9 +241,9 @@ export default function CampaignSection() {
                       styles.prizeLabelContainer,
 
                       {
-                        left: point.x - 42,
+                        left: point.x - 45,
 
-                        top: point.y - 18,
+                        top: point.y - 20,
                       },
                     ]}
                   >
@@ -446,9 +446,11 @@ const styles = StyleSheet.create({
 
     alignItems: "center",
 
-    justifyContent: "center",
+    justifyContent: "flex-start",
 
-    marginTop: 1,
+    marginTop: 4,
+
+    transform: [{ translateY: -36 }],
   },
 
   wheelOuter: {
@@ -505,9 +507,9 @@ const styles = StyleSheet.create({
   prizeLabelContainer: {
     position: "absolute",
 
-    width: 84,
+    width: 90,
 
-    height: 36,
+    height: 40,
 
     alignItems: "center",
 
@@ -521,9 +523,9 @@ const styles = StyleSheet.create({
 
     color: "#FFFFFF",
 
-    fontSize: 7.5,
+    fontSize: 8.5,
 
-    lineHeight: 11,
+    lineHeight: 12,
 
     textAlign: "center",
 
@@ -574,11 +576,11 @@ const styles = StyleSheet.create({
   centerButton: {
     position: "absolute",
 
-    width: 70,
+    width: 76,
 
-    height: 70,
+    height: 76,
 
-    borderRadius: 35,
+    borderRadius: 38,
 
     alignItems: "center",
 
@@ -605,11 +607,11 @@ const styles = StyleSheet.create({
   },
 
   centerButtonInner: {
-    width: 58,
+    width: 62,
 
-    height: 58,
+    height: 62,
 
-    borderRadius: 29,
+    borderRadius: 31,
 
     alignItems: "center",
 
@@ -631,9 +633,9 @@ const styles = StyleSheet.create({
   centerButtonText: {
     color: "#FFFFFF",
 
-    fontSize: 8.5,
+    fontSize: 9.5,
 
-    lineHeight: 13,
+    lineHeight: 14,
 
     textAlign: "center",
   },
@@ -657,7 +659,7 @@ const styles = StyleSheet.create({
   resultArea: {
     minHeight: 34,
 
-    marginTop: 3,
+    marginTop: 9,
 
     justifyContent: "center",
   },
