@@ -69,10 +69,12 @@ export default function LiveTVCard({
       try {
         setIsLoading(true);
 
-        await player.replaceAsync({
-          uri: media.url,
-          useCaching: true,
-        });
+        await player.replaceAsync(
+          media.asset ?? {
+            uri: media.url,
+            useCaching: true,
+          },
+        );
 
         if (cancelled) {
           return;

@@ -88,9 +88,7 @@ export default function PromoCarousel({ items }: Props) {
                 }}
               >
                 <Image
-                  source={{
-                    uri: item.url,
-                  }}
+                  source={item.asset ?? { uri: item.url }}
                   style={styles.image}
                   resizeMode="cover"
                 />

@@ -6,7 +6,7 @@ import {
   PlayerLayoutResponse,
 } from "../types/player";
 
-const BASE_URL = "http://46.34.163.41:8000";
+const BASE_URL = (process.env.EXPO_PUBLIC_BACKEND_URL ?? "").replace(/\/+$/, "");
 
 const API_URL = `${BASE_URL}/api/v1/device/manifest`;
 
@@ -14,11 +14,106 @@ const API_URL = `${BASE_URL}/api/v1/device/manifest`;
 //
 // باید device_token واقعی باشد
 // که از POST /devices گرفتی.
-const DEVICE_TOKEN = "BDxF1DTOHGGBi7ORTsRg4q53qLec_Gmqi5UXhOYM2NY";
+const DEVICE_TOKEN = "UTt68rYxP6GWkduGYsKB9tUL5IHqVv1aRVj0JgmXidw";
 
 // فعلاً برای اینکه محتوا حتماً نمایش داده شود false
 // بعداً برای production می‌کنیم true
 const RESPECT_SCHEDULE_WINDOWS = false;
+
+// Keep the screen usable while the manifest service is unavailable. Set this
+// to false when the server is ready again to restore the existing API flow.
+const USE_STATIC_LAYOUT = false;
+
+const STATIC_PLAYER_LAYOUT: PlayerLayoutResponse = {
+  layout: {
+    type: "GRID",
+    sections: [
+      {
+        placement: "top-left",
+        type: "VIDEO",
+        media: {
+          id: "local-live-test",
+          title: "پخش زنده",
+          type: "VIDEO",
+          url: "",
+          asset: require("../assets/videos/live-test.mp4"),
+          duration_ms: 10000,
+          checksum_sha256: "local-live-test",
+        },
+      },
+      {
+        placement: "top-right",
+        type: "SLIDER",
+        media: [
+          {
+            id: "local-promo-sale",
+            title: "پیشنهاد ویژه",
+            type: "IMAGE",
+            url: "",
+            asset: require("../assets/promo/promo-sale.jpg"),
+            duration_ms: 7000,
+            checksum_sha256: "local-promo-sale",
+          },
+          {
+            id: "local-promo-tech",
+            title: "فناوری",
+            type: "IMAGE",
+            url: "",
+            asset: require("../assets/promo/promo-tech.jpg"),
+            duration_ms: 7000,
+            checksum_sha256: "local-promo-tech",
+          },
+          {
+            id: "local-promo-travel",
+            title: "سفر",
+            type: "IMAGE",
+            url: "",
+            asset: require("../assets/promo/promo-travel.jpg"),
+            duration_ms: 7000,
+            checksum_sha256: "local-promo-travel",
+          },
+        ],
+      },
+      {
+        placement: "bottom-left",
+        type: "IMAGE",
+        media: {
+          id: "local-main-banner",
+          title: "بنر اصلی",
+          type: "IMAGE",
+          url: "",
+          asset: require("../assets/main/gold.png"),
+          duration_ms: 10000,
+          checksum_sha256: "local-main-banner",
+        },
+      },
+      {
+        placement: "bottom-right",
+        type: "SLIDER",
+        media: [
+          {
+            id: "local-campaign-banner",
+            title: "کمپین",
+            type: "IMAGE",
+            url: "",
+            asset: require("../assets/promo/promo-travel.jpg"),
+            duration_ms: 7000,
+            checksum_sha256: "local-campaign-banner",
+          },
+          {
+            id: "local-banner-offer",
+            title: "پیشنهاد",
+            type: "IMAGE",
+            url: "",
+            asset: require("../assets/promo/promo-tech.jpg"),
+            duration_ms: 7000,
+            checksum_sha256: "local-banner-offer",
+          },
+        ],
+      },
+    ],
+  },
+};
 
 // =========================================
 // ABSOLUTE MEDIA URL
@@ -185,6 +280,14 @@ function convertManifestToPlayerLayout(
 // =========================================
 
 export async function getPlayerLayout(): Promise<PlayerLayoutResponse> {
+  if (USE_STATIC_LAYOUT) {
+    return STATIC_PLAYER_LAYOUT;
+  }
+
+  if (!BASE_URL) {
+    throw new Error("EXPO_PUBLIC_BACKEND_URL is not configured");
+  }
+
   console.log("GET MANIFEST:", API_URL);
 
   const response = await fetch(API_URL, {
@@ -213,6 +316,11 @@ export async function getPlayerLayout(): Promise<PlayerLayoutResponse> {
 
   const manifest: DeviceManifestResponse = await response.json();
 
+  console.log(
+    "MANIFEST RESPONSE:",
+    JSON.stringify(manifest, null, 2),
+  );
+
   // =====================================
   // VALIDATION
   // =====================================
@@ -234,6 +342,19 @@ export async function getPlayerLayout(): Promise<PlayerLayoutResponse> {
   // =====================================
 
   const result = convertManifestToPlayerLayout(manifest);
+
+  console.log(
+    "MANIFEST CONTENT:",
+    JSON.stringify(
+      {
+        layout: manifest.layout,
+        media: manifest.media,
+        schedule: manifest.schedule,
+      },
+      null,
+      2,
+    ),
+  );
 
   console.log("PLAYER LAYOUT:", JSON.stringify(result, null, 2));
 

@@ -8,6 +8,10 @@ export type MediaItem = {
 
   url: string;
 
+  // Asset ID returned by require(...). It lets the temporary offline layout
+  // load bundled images and videos without a network request.
+  asset?: number;
+
   duration_ms: number;
 
   checksum_sha256: string;

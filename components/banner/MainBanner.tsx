@@ -19,9 +19,7 @@ export default function MainBanner({
     <View style={styles.outer}>
       <View style={styles.container}>
         <Image
-          source={{
-            uri: media.url,
-          }}
+          source={media.asset ?? { uri: media.url }}
           style={styles.image}
           resizeMode="cover"
         />
