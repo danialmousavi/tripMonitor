@@ -14,6 +14,7 @@ const BASE_URL =
     : "";
 
 const API_URL = `${BASE_URL}/api/v1/device/manifest`;
+const REQUEST_TIMEOUT_MS = 10_000;
 
 // این PLAYER_KEY نیست.
 //
@@ -24,10 +25,6 @@ const DEVICE_TOKEN = "UTt68rYxP6GWkduGYsKB9tUL5IHqVv1aRVj0JgmXidw";
 // فعلاً برای اینکه محتوا حتماً نمایش داده شود false
 // بعداً برای production می‌کنیم true
 const RESPECT_SCHEDULE_WINDOWS = false;
-
-// Keep the screen usable while the manifest service is unavailable. Set this
-// to false when the server is ready again to restore the existing API flow.
-const USE_STATIC_LAYOUT = false;
 
 const STATIC_PLAYER_LAYOUT: PlayerLayoutResponse = {
   layout: {
@@ -284,26 +281,33 @@ function convertManifestToPlayerLayout(
 // API REQUEST
 // =========================================
 
-export async function getPlayerLayout(): Promise<PlayerLayoutResponse> {
-  if (USE_STATIC_LAYOUT) {
-    return STATIC_PLAYER_LAYOUT;
-  }
-
+async function getRemotePlayerLayout(): Promise<PlayerLayoutResponse> {
   if (!BASE_URL) {
     throw new Error("EXPO_PUBLIC_BACKEND_URL is not configured");
   }
 
   console.log("GET MANIFEST:", API_URL);
 
-  const response = await fetch(API_URL, {
-    method: "GET",
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
 
-    headers: {
-      Accept: "application/json",
+  let response: Response;
 
-      Authorization: `Bearer ${DEVICE_TOKEN}`,
-    },
-  });
+  try {
+    response = await fetch(API_URL, {
+      method: "GET",
+
+      headers: {
+        Accept: "application/json",
+
+        Authorization: `Bearer ${DEVICE_TOKEN}`,
+      },
+
+      signal: controller.signal,
+    });
+  } finally {
+    clearTimeout(timeout);
+  }
 
   console.log("MANIFEST STATUS:", response.status);
 
@@ -364,4 +368,17 @@ export async function getPlayerLayout(): Promise<PlayerLayoutResponse> {
   console.log("PLAYER LAYOUT:", JSON.stringify(result, null, 2));
 
   return result;
+}
+
+export async function getPlayerLayout(): Promise<PlayerLayoutResponse> {
+  try {
+    return await getRemotePlayerLayout();
+  } catch (error) {
+    console.warn(
+      "Manifest is unavailable; using the bundled offline layout.",
+      error,
+    );
+
+    return STATIC_PLAYER_LAYOUT;
+  }
 }
