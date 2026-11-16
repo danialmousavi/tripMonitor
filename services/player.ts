@@ -20,7 +20,7 @@ const REQUEST_TIMEOUT_MS = 10_000;
 //
 // باید device_token واقعی باشد
 // که از POST /devices گرفتی.
-const DEVICE_TOKEN = "UTt68rYxP6GWkduGYsKB9tUL5IHqVv1aRVj0JgmXidw";
+const DEVICE_TOKEN = "XNoJRfyp42fuzp8p870sMHt2mbpJCoRJp3AzZZ__hac";
 
 // فعلاً برای اینکه محتوا حتماً نمایش داده شود false
 // بعداً برای production می‌کنیم true
